@@ -1,0 +1,11 @@
+# Pinned on 2026-10-12, Python 3.14.4 (project needs >= 3.11)
+pandas==3.0.6
+numpy==2.5.4
+pyarrow==26.0.0
+requests==2.34.2
+yfinance==1.7.0
+jdatetime==6.1.1
+matplotlib==3.11.2
+pytest==9.1.1
+pdfplumber==0.11.10        # reads the ICO monthly price PDFs (D-020)
+arch==8.0.0                # Politis-White optimal block length (D2)

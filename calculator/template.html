@@ -1,0 +1,958 @@
+<title>ارز محمولهٔ قهوه</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@400;500;700;800&display=swap">
+<style>
+/* Layout: a risk-desk worksheet. Inputs sit in a sticky column on the reading side (right in RTL); results flow down the main column, answer first, evidence after. */
+:root {
+  --bg: #f4f6f3;
+  --surface: #fdfdfb;
+  --surface-2: #eef2ee;
+  --ink: #15201c;
+  --ink-2: #47524d;
+  --muted: #78827d;
+  --line: #dde2dc;
+  --line-strong: #c4cbc4;
+  --accent: #0e6a5a;
+  --accent-ink: #ffffff;
+  --accent-soft: #e2efea;
+  --good: #0a7d0a;
+  --good-soft: #e3f3e1;
+  --crit: #c93535;
+  --crit-soft: #fbe7e5;
+  --warn: #a86b00;
+  --warn-soft: #fbf0d9;
+  --s-now: #2a78d6;
+  --s-pay: #eb6834;
+  --s-staged: #1baf7a;
+  --s-rec: #6250d6;
+  --bar: #6f8f84;
+  --font: "Vazirmatn", "Vazir", Tahoma, "Segoe UI", system-ui, sans-serif;
+  --r: 10px;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #0e1311; --surface: #151b18; --surface-2: #1b231f; --ink: #e8eeea; --ink-2: #b9c3be; --muted: #87918c;
+    --line: #29312d; --line-strong: #3a443f; --accent: #4fb59f; --accent-ink: #08130f; --accent-soft: #19302a;
+    --good: #2fbf2f; --good-soft: #142a14; --crit: #e66767; --crit-soft: #341818; --warn: #e0a531; --warn-soft: #32270f;
+    --s-now: #3987e5; --s-pay: #d95926; --s-staged: #199e70; --s-rec: #9085e9; --bar: #5d7d72; color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #0e1311; --surface: #151b18; --surface-2: #1b231f; --ink: #e8eeea; --ink-2: #b9c3be; --muted: #87918c;
+  --line: #29312d; --line-strong: #3a443f; --accent: #4fb59f; --accent-ink: #08130f; --accent-soft: #19302a;
+  --good: #2fbf2f; --good-soft: #142a14; --crit: #e66767; --crit-soft: #341818; --warn: #e0a531; --warn-soft: #32270f;
+  --s-now: #3987e5; --s-pay: #d95926; --s-staged: #199e70; --s-rec: #9085e9; --bar: #5d7d72; color-scheme: dark;
+}
+* { box-sizing: border-box; }
+body { background: var(--bg); color: var(--ink); font-family: var(--font); font-size: 15px; line-height: 1.75; direction: rtl; }
+.wrap { max-width: 1200px; margin: 0 auto; padding-inline: 20px; padding-block: 28px 64px; }
+h1, h2, h3 { text-wrap: balance; margin: 0; line-height: 1.35; }
+h1 { font-size: clamp(26px, 4.2vw, 40px); font-weight: 800; letter-spacing: -0.01em; }
+h2 { font-size: 19px; font-weight: 800; }
+h3 { font-size: 15px; font-weight: 700; }
+p { margin: 0; }
+.num { direction: ltr; unicode-bidi: isolate; font-variant-numeric: tabular-nums; }
+header.top { display: grid; gap: 10px; padding-block-end: 22px; border-bottom: 1px solid var(--line); margin-block-end: 22px; }
+.eyebrow { font-size: 12.5px; color: var(--accent); font-weight: 700; letter-spacing: .02em; }
+.lede { max-width: 72ch; color: var(--ink-2); font-size: 16px; }
+.meta { display: flex; flex-wrap: wrap; gap: 6px 18px; font-size: 13px; color: var(--muted); }
+.meta b { color: var(--ink-2); font-weight: 600; }
+
+.layout { display: grid; grid-template-columns: 340px minmax(0, 1fr); gap: 28px; align-items: start; }
+@media (max-width: 920px) { .layout { grid-template-columns: minmax(0, 1fr); } }
+
+/* inputs */
+aside.inputs { position: sticky; top: calc(env(safe-area-inset-top, 0px) + 12px); max-height: calc(100vh - 24px); overflow: auto; background: var(--surface); border: 1px solid var(--line); border-radius: var(--r); padding: 16px 16px 18px; display: grid; gap: 18px; }
+@media (max-width: 920px) { aside.inputs { position: static; max-height: none; } }
+fieldset { border: 0; margin: 0; padding: 0; display: grid; gap: 12px; }
+legend { font-weight: 800; font-size: 13px; color: var(--accent); padding: 0; margin-block-end: 2px; letter-spacing: .02em; }
+.field { display: grid; gap: 4px; }
+.field label, .field .lab { font-size: 13.5px; font-weight: 600; color: var(--ink); display: flex; justify-content: space-between; gap: 8px; align-items: baseline; }
+.field .val { color: var(--accent); font-weight: 700; font-size: 13px; }
+.help { font-size: 12px; color: var(--muted); line-height: 1.6; }
+input[type="number"], input[type="text"], select { width: 100%; font: inherit; font-size: 14px; color: var(--ink); background: var(--surface-2); border: 1px solid var(--line); border-radius: 8px; padding: 6px 10px; }
+input[type="number"] { direction: ltr; text-align: left; font-variant-numeric: tabular-nums; }
+input[type="range"] { width: 100%; accent-color: var(--accent); }
+input:focus-visible, select:focus-visible, button:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+.seg { display: flex; flex-wrap: wrap; gap: 4px; background: var(--surface-2); border: 1px solid var(--line); border-radius: 9px; padding: 3px; }
+.seg button { flex: 1 1 auto; font: inherit; font-size: 13px; border: 0; background: transparent; color: var(--ink-2); padding: 5px 8px; border-radius: 7px; cursor: pointer; }
+.seg button[aria-pressed="true"] { background: var(--accent); color: var(--accent-ink); font-weight: 700; }
+.inline { display: flex; align-items: center; gap: 8px; font-size: 12.5px; color: var(--ink-2); }
+.inline input { width: auto; }
+.row2 { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+.btn-reset { font: inherit; font-size: 13px; border: 1px solid var(--line-strong); background: transparent; color: var(--ink-2); border-radius: 8px; padding: 6px 10px; cursor: pointer; justify-self: start; }
+
+/* results */
+main.results { display: grid; gap: 26px; min-width: 0; }
+section.block { display: grid; gap: 12px; min-width: 0; }
+.block > header { display: grid; gap: 4px; }
+.block > header p { color: var(--ink-2); font-size: 14px; max-width: 75ch; }
+
+.answer { background: var(--surface); border: 1px solid var(--line); border-radius: var(--r); padding: 20px 22px; display: grid; gap: 14px; }
+.answer.bad { border-color: color-mix(in srgb, var(--crit) 45%, var(--line)); }
+.pill { display: inline-flex; align-items: center; gap: 6px; font-size: 12.5px; font-weight: 700; padding: 2px 10px; border-radius: 999px; justify-self: start; }
+.pill.good { background: var(--good-soft); color: var(--good); }
+.pill.crit { background: var(--crit-soft); color: var(--crit); }
+.pill.warn { background: var(--warn-soft); color: var(--warn); }
+.pill svg { width: 14px; height: 14px; }
+.big { font-size: clamp(24px, 3.6vw, 34px); font-weight: 800; line-height: 1.3; }
+.big .hl { color: var(--accent); }
+.answer .sub { color: var(--ink-2); max-width: 70ch; }
+.facts { display: grid; grid-template-columns: repeat(auto-fit, minmax(170px, 1fr)); gap: 10px; }
+.fact { background: var(--surface-2); border-radius: 8px; padding: 10px 12px; display: grid; gap: 2px; min-width: 0; }
+.fact .k { font-size: 12px; color: var(--muted); }
+.fact .v { font-size: 17px; font-weight: 700; }
+.fact .v small { font-size: 12px; font-weight: 500; color: var(--ink-2); }
+.needs { display: grid; gap: 6px; max-width: 640px; }
+.need { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 0 14px; align-items: baseline; background: var(--surface-2); border-radius: 8px; padding: 8px 12px; border-inline-start: 3px solid transparent; }
+.need .k { font-size: 13.5px; color: var(--ink-2); }
+.need .v { font-weight: 800; font-size: 17px; white-space: nowrap; }
+.need .x { grid-column: 1 / -1; font-size: 12px; color: var(--muted); }
+.need.win { border-inline-start-color: var(--accent); }
+.need.win .v { color: var(--accent); }
+.note { border-inline-start: 3px solid var(--warn); background: var(--warn-soft); color: var(--ink); padding: 10px 14px; border-radius: 6px; font-size: 13.5px; }
+.note.info { border-color: var(--accent); background: var(--accent-soft); }
+
+.tablewrap { overflow-x: auto; border: 1px solid var(--line); border-radius: var(--r); background: var(--surface); }
+table { border-collapse: collapse; width: 100%; font-size: 13.5px; }
+th, td { padding: 9px 12px; text-align: right; border-bottom: 1px solid var(--line); white-space: nowrap; }
+th { font-weight: 700; color: var(--ink-2); font-size: 12.5px; background: var(--surface-2); }
+tr:last-child td { border-bottom: 0; }
+td.n { font-variant-numeric: tabular-nums; }
+.sw { display: inline-block; width: 10px; height: 10px; border-radius: 3px; margin-inline-end: 7px; vertical-align: -1px; }
+.ok { color: var(--good); font-weight: 700; }
+.ko { color: var(--crit); font-weight: 700; }
+td .mark { display: inline-flex; align-items: center; gap: 4px; }
+td .mark svg { width: 13px; height: 13px; }
+tr.rec td { background: color-mix(in srgb, var(--s-rec) 9%, transparent); }
+.sub-row { font-size: 12px; color: var(--muted); }
+
+.chart { background: var(--surface); border: 1px solid var(--line); border-radius: var(--r); padding: 12px 12px 8px; position: relative; min-width: 0; }
+.chart > svg { display: block; width: 100%; height: auto; direction: ltr; }
+.legend svg { display: inline-block; vertical-align: middle; margin-inline-end: 6px; }
+.legend > span { display: inline-flex; align-items: center; }
+.ins-foot { display: grid; gap: 8px; }
+.legend { display: flex; flex-wrap: wrap; gap: 6px 16px; font-size: 12.5px; color: var(--ink-2); padding: 0 6px 6px; }
+.tip { position: absolute; pointer-events: none; background: var(--ink); color: var(--bg); font-size: 12px; line-height: 1.6; padding: 6px 9px; border-radius: 6px; white-space: nowrap; transform: translate(-50%, -110%); opacity: 0; transition: opacity .08s; z-index: 2; }
+.tip.on { opacity: 1; }
+.cap { font-size: 12.5px; color: var(--muted); padding: 4px 6px 2px; }
+
+.rs { display: grid; gap: 10px; }
+.rs .sentence { font-size: 16px; }
+.cols { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 14px; }
+.card { background: var(--surface); border: 1px solid var(--line); border-radius: var(--r); padding: 14px 16px; display: grid; gap: 8px; align-content: start; min-width: 0; }
+.card ul { margin: 0; padding-inline-start: 18px; display: grid; gap: 6px; color: var(--ink-2); font-size: 13.5px; }
+.card p { color: var(--ink-2); font-size: 13.5px; }
+footer.foot { margin-block-start: 34px; padding-block-start: 16px; border-top: 1px solid var(--line); font-size: 12.5px; color: var(--muted); display: grid; gap: 6px; }
+a { color: var(--accent); }
+@media (prefers-reduced-motion: reduce) { * { transition: none !important; } }
+</style>
+
+<div class="wrap">
+  <header class="top">
+    <div class="eyebrow">نمونه‌کار برای پرسش آگهی «تحلیلگر کمّی و ریسک بازار» آرگن کافی</div>
+    <h1>ارز محمولهٔ قهوه را کی بخریم؟</h1>
+    <p class="lede">محموله‌ای ۱۰۰ هزار دلاری باید سه ماه دیگر پرداخت شود. درآمد ریالی است و دلار و قیمت جهانی قهوه هر دو نوسان دارند. این ابزار برای هر راه خرید ارز، توزیع هزینهٔ ریالی و احتمال افتادن حاشیهٔ سود زیر کف را نشان می‌دهد و کمترین سهمی از ارز را پیدا می‌کند که باید همین امروز خرید تا قید ریسک رعایت شود.</p>
+    <div class="meta">
+      <span>دادهٔ تا <b id="asof">۱۵ مهر ۱۴۰۵</b></span>
+      <span><b data-npaths>۲۰٬۰۰۰</b> مسیر سه‌ماههٔ شبیه‌سازی‌شده</span>
+      <span>همهٔ پیش‌فرض‌ها جز نرخ دلار، سود صندوق و اضافه‌بها فرض‌اند</span>
+    </div>
+  </header>
+
+  <div class="layout">
+    <aside class="inputs" aria-label="ورودی‌ها">
+      <fieldset>
+        <legend>محموله</legend>
+        <div class="field">
+          <label for="usd_amount">مبلغ فاکتور (دلار)</label>
+          <input id="usd_amount" type="number" min="1000" step="1000" value="100000">
+        </div>
+        <div class="field">
+          <label for="payment_week">هفتهٔ پرداخت <span class="val" id="payment_week_v"></span></label>
+          <input id="payment_week" type="range" min="4" max="13" step="1" value="13">
+          <div class="help">تا وقتی موجودی کفاف می‌دهد؛ حداکثر ۱۳ هفته</div>
+        </div>
+        <div class="field">
+          <span class="lab">قیمت قهوه در قرارداد</span>
+          <div class="seg" id="contract" role="group" aria-label="قیمت قهوه در قرارداد">
+            <button type="button" data-v="floating" aria-pressed="true">شناور تا روز پرداخت</button>
+            <button type="button" data-v="fixed" aria-pressed="false">قطعی از امروز</button>
+          </div>
+        </div>
+        <div class="field">
+          <label for="arabica_share">سهم عربیکا در محموله <span class="val" id="arabica_share_v"></span></label>
+          <input id="arabica_share" type="range" min="0" max="100" step="5" value="50">
+          <div class="help">بقیه روبوستا</div>
+        </div>
+        <div class="field">
+          <label for="premium_share">اضافه‌بهای قهوهٔ فیزیکی (٪ فاکتور)</label>
+          <input id="premium_share" type="number" min="0" max="50" step="0.1">
+          <label class="inline"><input id="premium_auto" type="checkbox" checked> خودکار، از اختلاف بورس با شاخص IMF</label>
+        </div>
+      </fieldset>
+
+      <fieldset>
+        <legend>ارز و پول ریالی</legend>
+        <div class="field">
+          <label for="s0">نرخ دلار امروز (ریال)</label>
+          <input id="s0" type="number" min="1" step="1000">
+          <div class="help" id="s0_help"></div>
+        </div>
+        <div class="field">
+          <span class="lab">کانال خرید ارز</span>
+          <div class="seg" id="channel" role="group" aria-label="کانال خرید ارز">
+            <button type="button" data-v="free" aria-pressed="true">بازار آزاد</button>
+            <button type="button" data-v="official" aria-pressed="false">کانال رسمی</button>
+          </div>
+          <div class="field" id="discount_box" hidden>
+            <label for="channel_discount">تخفیف کانال رسمی نسبت به آزاد (٪)</label>
+            <input id="channel_discount" type="number" min="0" max="80" step="1" value="20">
+          </div>
+        </div>
+        <div class="field">
+          <label for="drift">انتظار از دلار تا روز پرداخت</label>
+          <select id="drift">
+            <option value="neutral" selected>خنثی: هم‌پای سود صندوق</option>
+            <option value="historical">میانگین تاریخی</option>
+            <option value="zero">بدون رشد</option>
+            <option value="custom">دلخواه</option>
+          </select>
+          <div class="field" id="drift_box" hidden>
+            <label for="drift_custom">رشد سالانهٔ مورد انتظار دلار (٪)</label>
+            <input id="drift_custom" type="number" step="1" value="30">
+          </div>
+          <div class="help">خنثی یعنی به‌طور میانگین نه خرید زود می‌برد نه خرید دیر؛ تصمیم فقط از ریسک می‌آید.</div>
+        </div>
+        <div class="row2">
+          <div class="field">
+            <label for="market_rate">سود صندوق (٪ سالانه)</label>
+            <input id="market_rate" type="number" min="0" step="0.1">
+          </div>
+          <div class="field">
+            <label for="funds_rate">هزینهٔ پول شرکت (٪)</label>
+            <input id="funds_rate" type="number" min="0" step="0.1" disabled>
+          </div>
+        </div>
+        <label class="inline"><input id="funds_tie" type="checkbox" checked> هزینهٔ پول شرکت = سود صندوق (پول بیکار). اگر برای خرید زود ارز وام می‌گیرید، نرخ وام را بنویسید.</label>
+        <div class="row2">
+          <div class="field">
+            <label for="fx_holding_cost">هزینهٔ نگه‌داری ارز (٪ سالانه)</label>
+            <input id="fx_holding_cost" type="number" min="0" step="0.5" value="0">
+          </div>
+          <div class="field">
+            <label for="sellback_spread">کسر فروش دلار اضافه (٪)</label>
+            <input id="sellback_spread" type="number" min="0" step="0.5" value="1">
+          </div>
+        </div>
+        <div class="field">
+          <label for="usd_vol_scale">نوسان دلار <span class="val" id="usd_vol_scale_v"></span></label>
+          <input id="usd_vol_scale" type="range" min="0.4" max="1.6" step="0.05" value="1">
+          <div class="help">پیش‌فرض نوسان امروز است. حدود ×۰٫۶ نزدیک میانهٔ تاریخی است.</div>
+        </div>
+      </fieldset>
+
+      <fieldset>
+        <legend>حاشیه و ریسک قابل‌قبول</legend>
+        <div class="row2">
+          <div class="field">
+            <label for="planned_margin">حاشیهٔ سود برنامه (٪)</label>
+            <input id="planned_margin" type="number" min="1" max="80" step="1" value="25">
+          </div>
+          <div class="field">
+            <label for="margin_floor">کف حاشیهٔ سود (٪)</label>
+            <input id="margin_floor" type="number" min="-50" max="79" step="1" value="10">
+          </div>
+        </div>
+        <div class="field">
+          <span class="lab">با چه اطمینانی کف حفظ شود</span>
+          <div class="seg" id="confidence" role="group" aria-label="اطمینان">
+            <button type="button" data-v="0.9" aria-pressed="false">۹۰٪</button>
+            <button type="button" data-v="0.95" aria-pressed="true">۹۵٪</button>
+            <button type="button" data-v="0.975" aria-pressed="false">۹۷٫۵٪</button>
+            <button type="button" data-v="0.99" aria-pressed="false">۹۹٪</button>
+          </div>
+        </div>
+        <div class="field">
+          <label for="stress">کف فشار: کدام بحران باید قابل تحمل باشد</label>
+          <select id="stress"></select>
+          <div class="help">سهم خرید امروز دست‌کم آن‌قدر می‌شود که تکرار این بحران از امروز کف را نشکند (فقط ریسک دلار). پیش‌فرض: بدترین جهش ۱۳ هفته‌ای دلار که تا امروز دیده شده؛ همان قاعده‌ای که در بک‌تست ده‌ساله آزموده شد.</div>
+        </div>
+        <div class="field">
+          <label for="budget_factor">بودجه (٪ هزینهٔ برنامه)</label>
+          <input id="budget_factor" type="number" min="100" step="1" value="110">
+        </div>
+        <div class="field">
+          <label for="pass_through">انتقال جهش دلار به قیمت فروش <span class="val" id="pass_through_v"></span></label>
+          <input id="pass_through" type="range" min="0" max="100" step="5" value="0">
+          <div class="seg" id="pt_mode" role="group" aria-label="نوع انتقال">
+            <button type="button" data-v="up_only" aria-pressed="true">فقط افزایش قیمت</button>
+            <button type="button" data-v="symmetric" aria-pressed="false">افزایش و کاهش</button>
+          </div>
+        </div>
+        <div class="field">
+          <label for="demand_sd">نااطمینانی فروش <span class="val" id="demand_sd_v"></span></label>
+          <input id="demand_sd" type="range" min="0" max="30" step="1" value="0">
+          <div class="help">انحراف معیار درآمد این محموله نسبت به برنامه</div>
+        </div>
+      </fieldset>
+      <button type="button" class="btn-reset" id="reset">بازگشت به پیش‌فرض‌ها</button>
+    </aside>
+
+    <main class="results">
+      <section class="block" aria-live="polite">
+        <div class="answer" id="answer"></div>
+      </section>
+
+      <section class="block">
+        <header>
+          <h2>راه‌های خرید ارز، کنار هم</h2>
+          <p>هزینه‌ها درصدی از «هزینهٔ برنامه»اند: مبلغ فاکتور به نرخ امروز، با رشد مورد انتظار دلار تا روز پرداخت. همه به ارزش روز پرداخت، با هزینهٔ پولی که زودتر خرج شده.</p>
+        </header>
+        <div class="tablewrap"><table id="strat_table"></table></div>
+      </section>
+
+      <section class="block">
+        <header>
+          <h2>خرید امروزِ دلار، مثل بیمه</h2>
+          <p>هر نقطهٔ منحنی یک تصمیم است: چند درصد دلار همین امروز خریده شود و بقیه روز پرداخت. ارتفاع منحنی «ریسک» است، یعنی احتمال اینکه حاشیهٔ سود زیر کف برود. هر چه بیشتر امروز بخرید منحنی پایین‌تر می‌آید؛ هدف رسیدن به ناحیهٔ سبز است.</p>
+        </header>
+        <div class="chart" id="ins_chart"></div>
+        <div class="ins-foot" id="ins_facts"></div>
+      </section>
+
+      <section class="block">
+        <header>
+          <h2>توزیع هزینهٔ ریالی در روز پرداخت</h2>
+          <p>هر میله نشان می‌دهد در چند درصد از <span data-npaths>۲۰٬۰۰۰</span> آیندهٔ شبیه‌سازی‌شده، هزینهٔ ریالی محموله به آن مقدار رسیده است (۱۰۰٪ یعنی همان هزینهٔ برنامه). بخش قرمز آینده‌هایی است که حاشیهٔ سود در آن‌ها زیر کف می‌رود؛ هر چه قرمز کمتر، آن راه خرید امن‌تر.</p>
+        </header>
+        <div class="chart" id="dist_chart"></div>
+      </section>
+
+      <section class="block">
+        <header>
+          <h2>اگر یک بحران واقعی از امروز تکرار شود</h2>
+          <p>تغییرهای واقعی دلار و قهوه در بدترین سه‌ماههٔ هر رویداد، روی نرخ و قیمت امروز. احتمال ندارند؛ می‌گویند اگر تاریخ تکرار شود حاشیه چه می‌شود.</p>
+        </header>
+        <div class="tablewrap"><table id="stress_table"></table></div>
+      </section>
+
+      <section class="block rs">
+        <header>
+          <h2>دلار چقدر باید بالا برود تا کف بشکند؟</h2>
+          <p>با قیمت قهوهٔ ثابت. برای هر سهم خرید امروز، جهشی از دلار تا روز پرداخت که حاشیه را زیر کف می‌برد.</p>
+        </header>
+        <p class="sentence" id="rs_sentence"></p>
+        <div class="tablewrap"><table id="rs_table"></table></div>
+      </section>
+
+      <section class="block">
+        <header><h2>پیش از استفاده</h2></header>
+        <div class="cols">
+          <div class="card">
+            <h3>وعدهٔ مدل و کارنامه‌اش</h3>
+            <p>مدل می‌گوید با «حداقل سهم» حاشیه با احتمال ۹۵٪ بالای کف می‌ماند. در بک‌تست روی ۵۷۸ هفتهٔ واقعی از ۱۳۹۴، پیروی از همین عدد (قیمت قطعی) در ۷٫۶٪ هفته‌ها کف را شکست؛ در هفته‌های پرنوسان مثل امروز ۵٫۹٪. شکست‌ها در هفته‌های آرامِ پیش از جهش بود: مدل جهشی را که از دل آرامش می‌آید نمی‌بیند. «کف فشار» برای همین است: با کف «بدترین جهش ۱۳ هفته‌ای که تا آن روز دیده شده بود» شکست به ۳٫۸٪ رسید، با میانگین ۶۵٪ خرید امروز، و این پیش‌فرض صفحه است. کف S2، از وقتی رخ داد، ۶٫۴٪ شکست داشت. این قاعده بعد از دیدن شکست مدل طراحی شد، پس آزمونش از پیش تعیین‌شده نبود.</p>
+          </div>
+          <div class="card">
+            <h3>آنچه در تاریخ واقعی رخ داد</h3>
+            <ul>
+              <li>قیمت قطعی و خرید کامل ارز در روز تصمیم: در ۵۷۸ هفته هیچ‌بار کف ۱۰٪ نشکست.</li>
+              <li>همان قیمت قطعی و صبر تا روز پرداخت: ۱۳٫۵٪ هفته‌ها کف شکست؛ بدترین حاشیه ۷۲٪ منفی.</li>
+              <li>قیمت شناور و خرید کامل ارز: باز هم ۸٫۵٪ هفته‌ها کف شکست. ریسک قهوه با خرید ارز برداشته نمی‌شود.</li>
+            </ul>
+          </div>
+          <div class="card">
+            <h3>محدودیت‌ها</h3>
+            <ul>
+              <li>جز نرخ دلار، سود صندوق و اضافه‌بها، همهٔ پیش‌فرض‌ها فرض‌اند؛ با عددهای واقعی شرکت جواب دقیق‌تر می‌شود.</li>
+              <li>با قیمت شناور، احتمال‌های مدل در بک‌تست خوش‌بینانه بود.</li>
+              <li>کانال رسمی به شکل «نرخ آزاد منهای تخفیف» با همان رفتار نرخ آزاد مدل شده؛ نرخی که پله‌ای و اداری حرکت کند مدل نشده.</li>
+              <li>انتقال «فقط افزایش» میانگین درآمد را بالاتر از برنامه می‌برد.</li>
+              <li id="mc_note">این صفحه و گزارش‌ها هر دو روی همان ۲۰٬۰۰۰ مسیر کار می‌کنند و عددهایشان یکی است. خطای شبیه‌سازی صفر نیست؛ بازهٔ دقتِ حداقل سهم کنار خودِ عدد آمده است.</li>
+            </ul>
+          </div>
+        </div>
+      </section>
+
+      <section class="block">
+        <header><h2>روش و داده، در چند خط</h2></header>
+        <div class="cols">
+          <div class="card">
+            <h3>روش</h3>
+            <ul>
+              <li>مسیرهای سه‌ماهه از تکه‌های واقعی تاریخ هفتگی دلار، عربیکا و روبوستا ساخته می‌شوند (بوت‌استرپ بلوکی با میانگین بلوک ۱۳ هفته)، هر سه از همان هفته‌ها تا هم‌حرکتی‌شان حفظ شود.</li>
+              <li>اندازهٔ نوسان دلار از امروز می‌آید و شکلش از تاریخ (شبیه‌سازی تاریخی فیلترشده).</li>
+              <li>میانگین دلار با انتظار انتخاب‌شده تنظیم می‌شود؛ قیمت آتی قهوه پیش‌بینی بازار گرفته می‌شود.</li>
+              <li>قاعدهٔ تصمیم: از گزینه‌هایی که کف را با اطمینان خواسته‌شده حفظ می‌کنند، ارزان‌ترین؛ در هزینهٔ تقریباً برابر، کم‌ریسک‌تر.</li>
+            </ul>
+          </div>
+          <div class="card">
+            <h3>داده (همه عمومی)</h3>
+            <ul>
+              <li>دلار آزاد: آرشیو روزانهٔ Bonbast؛ TGJU برای کنترل. TGJU در ۱۳۹۷ و هفته‌های اول جنگ با بازار نمی‌خواند.</li>
+              <li>عربیکا: قرارداد آتی ICE (KC)؛ روبوستا: ICE لندن از TGJU، دو حفرهٔ ۱۴۰۵ با شاخص روزانهٔ ICO.</li>
+              <li>اضافه‌بهای فیزیکی: شاخص ماهانهٔ IMF از FRED.</li>
+              <li>هزینهٔ پول ریالی: صندوق درآمد ثابت «اعتماد» از TSETMC.</li>
+            </ul>
+          </div>
+          <div class="card">
+            <h3>ساخت</h3>
+            <p>کد این ابزار و مدل پشت آن با کمک Claude (ساخت Anthropic) نوشته شده است. پرسش‌ها، تصمیم‌های مدل‌سازی و بررسی نتایج با نویسنده است و هر تصمیم با دلیلش در مخزن کد ثبت شده. موتور این صفحه همان فرمول‌های موتور پایتون را اجرا می‌کند و با ۱۲ حالت مرجع آن تا ۱۴ رقم یکی است.</p>
+          </div>
+        </div>
+      </section>
+    </main>
+  </div>
+  <footer class="foot">
+    <span>اعداد برای تصمیم‌گیری مالی واقعی جایگزین مشاورهٔ تخصصی نیستند. هیچ سری قیمتی در این صفحه منتشر نشده است؛ فقط بازده‌های بی‌تاریخِ شبیه‌سازی.</span>
+  </footer>
+</div>
+
+<script type="application/json" id="paths-data">__PATHS__</script>
+<script type="application/json" id="scen-data">__SCEN__</script>
+<script>
+__ENGINE__
+</script>
+<script>
+(function () {
+  "use strict";
+  const E = window.CoffeeEngine;
+  const PATHS = JSON.parse(document.getElementById("paths-data").textContent);
+  const SCEN = JSON.parse(document.getElementById("scen-data").textContent).scenarios;
+  const P = E.prepare(PATHS);
+  const $ = id => document.getElementById(id);
+
+  // ---------- formatting ----------
+  const nfCache = {};
+  function nf(d) { const k = "n" + d; return nfCache[k] || (nfCache[k] = new Intl.NumberFormat("fa-IR", { minimumFractionDigits: d, maximumFractionDigits: d })); }
+  function pf(d) { const k = "p" + d; return nfCache[k] || (nfCache[k] = new Intl.NumberFormat("fa-IR", { style: "percent", minimumFractionDigits: d, maximumFractionDigits: d })); }
+  const pct = (x, d = 0) => `<span class="num">${pf(d).format(x)}</span>`;
+  const spct = (x, d = 0) => `<span class="num">${x >= 0 ? "+" : "−"}${pf(d).format(Math.abs(x))}</span>`;
+  const bil = r => `<span class="num">${nf(1).format(r / 1e9)}</span> میلیارد ریال`;
+  const rial = r => `<span class="num">${nf(0).format(Math.round(r))}</span> ریال`;
+  const plain = (x, d = 0) => nf(d).format(x);
+
+  const SC_FA = {
+    S1: ["جهش ارز ۱۳۹۷", "تیر تا مهر ۱۳۹۷"],
+    S2: ["جهش ارز ۱۴۰۱–۱۴۰۲", "آذر تا اسفند ۱۴۰۱"],
+    S3: ["جهش قهوهٔ ۲۰۲۱", "خرداد تا شهریور ۱۴۰۰"],
+    S4: ["جهش قهوهٔ ۲۰۲۴", "آبان تا بهمن ۱۴۰۳"],
+    S5: ["جنگ، بدترین ۱۳ هفته", "خرداد تا شهریور ۱۴۰۵"],
+    S6: ["جنگ، کل مسیر", "اسفند ۱۴۰۴ تا مهر ۱۴۰۵، ۳۲ هفته"],
+    S7: ["طوفان کامل (فرضی)", "دلار ۱۳۹۷ هم‌زمان با قهوهٔ ۲۰۲۴"]
+  };
+  const ICON_OK = '<svg viewBox="0 0 16 16" aria-hidden="true"><path d="M3 8.5l3 3 7-7" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg>';
+  const ICON_KO = '<svg viewBox="0 0 16 16" aria-hidden="true"><path d="M4 4l8 8M12 4l-8 8" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"/></svg>';
+  const ICON_WARN = '<svg viewBox="0 0 16 16" aria-hidden="true"><path d="M8 2l6.5 12h-13z" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/><path d="M8 6.5v3.5M8 12v.2" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>';
+
+  // ---------- defaults ----------
+  const DEF = {
+    usd_amount: 100000, payment_week: 13, contract: "floating", arabica_share: 50, premium_auto: true,
+    s0: PATHS.s0, channel: "free", channel_discount: 20, drift: "neutral", drift_custom: 30,
+    market_rate: +(PATHS.market_rate * 100).toFixed(1), funds_tie: true, funds_rate: +(PATHS.market_rate * 100).toFixed(1),
+    fx_holding_cost: 0, sellback_spread: 1, usd_vol_scale: 1, planned_margin: 25, margin_floor: 10, confidence: 0.95,
+    stress: null, budget_factor: 110, pass_through: 0, pt_mode: "up_only", demand_sd: 0
+  };
+  const segs = { contract: "contract", channel: "channel", confidence: "confidence", pt_mode: "pt_mode" };
+  function segVal(id) { const b = $(id).querySelector('[aria-pressed="true"]'); return b ? b.dataset.v : null; }
+  function setSeg(id, v) { $(id).querySelectorAll("button").forEach(b => b.setAttribute("aria-pressed", String(b.dataset.v === String(v)))); }
+
+  // stress select. Default (D-053): the largest real 13-week USD jump seen up to today, the rule tested in the backtest
+  const WORST = SCEN.filter(s => !s.hypothetical && s.payment_week === 13).reduce((a, s) => (a === null || s.usd[2] > a.usd[2] ? s : a), null);
+  DEF.stress = WORST ? WORST.key : "none";
+  $("stress").innerHTML = '<option value="none">هیچ (فقط مدل)</option>' + SCEN.map(s => `<option value="${s.key}">${SC_FA[s.key][0]} (دلار ${s.usd[2] >= 0 ? "+" : ""}${plain(s.usd[2] * 100, 0)}٪)${WORST && s.key === WORST.key ? "، بدترین دیده‌شده" : ""}</option>`).join("");
+
+  function premiumDefault(w) { return (w * PATHS.premium.arabica + (1 - w) * PATHS.premium.robusta) * 100; }
+
+  function applyDefaults() {
+    for (const k of ["usd_amount", "payment_week", "arabica_share", "s0", "channel_discount", "drift_custom", "market_rate", "funds_rate", "fx_holding_cost", "sellback_spread", "usd_vol_scale", "planned_margin", "margin_floor", "budget_factor", "pass_through", "demand_sd"]) $(k).value = DEF[k];
+    $("premium_auto").checked = true; $("funds_tie").checked = true;
+    $("drift").value = DEF.drift; $("stress").value = DEF.stress;
+    setSeg("contract", DEF.contract); setSeg("channel", DEF.channel); setSeg("confidence", DEF.confidence); setSeg("pt_mode", DEF.pt_mode);
+    syncDerived();
+  }
+
+  function syncDerived() {
+    const w = +$("arabica_share").value / 100;
+    if ($("premium_auto").checked) $("premium_share").value = premiumDefault(w).toFixed(1);
+    $("premium_share").disabled = $("premium_auto").checked;
+    if ($("funds_tie").checked) $("funds_rate").value = $("market_rate").value;
+    $("funds_rate").disabled = $("funds_tie").checked;
+    $("discount_box").hidden = segVal("channel") !== "official";
+    $("drift_box").hidden = $("drift").value !== "custom";
+    $("payment_week_v").textContent = plain(+$("payment_week").value) + " هفته";
+    $("arabica_share_v").textContent = plain(+$("arabica_share").value) + "٪";
+    const vs = +$("usd_vol_scale").value;
+    $("usd_vol_scale_v").textContent = "×" + plain(vs, 2) + " · " + plain(PATHS.usd_vol_weekly * vs * Math.sqrt(52) * 100, 0) + "٪ در سال";
+    $("pass_through_v").textContent = plain(+$("pass_through").value) + "٪";
+    $("demand_sd_v").textContent = plain(+$("demand_sd").value) + "٪";
+  }
+
+  function num(id, lo, hi, fb) { let v = parseFloat($(id).value); if (!isFinite(v)) v = fb; return Math.min(hi, Math.max(lo, v)); }
+
+  function readInputs() {
+    const pm = num("planned_margin", 1, 80, 25) / 100;
+    let fl = num("margin_floor", -50, 79, 10) / 100;
+    if (fl >= pm) fl = pm - 0.01;
+    const dsel = $("drift").value;
+    const market = num("market_rate", 0, 300, DEF.market_rate) / 100;
+    return {
+      usd_amount: num("usd_amount", 1000, 1e9, 100000),
+      payment_week: Math.round(num("payment_week", 4, 13, 13)),
+      s0: num("s0", 1, 1e12, PATHS.s0),
+      market_rate: market,
+      channel_discount: segVal("channel") === "official" ? num("channel_discount", 0, 80, 20) / 100 : 0,
+      contract: segVal("contract"),
+      arabica_share: num("arabica_share", 0, 100, 50) / 100,
+      premium_share: num("premium_share", 0, 50, 7.3) / 100,
+      funds_rate: $("funds_tie").checked ? market : num("funds_rate", 0, 300, DEF.market_rate) / 100,
+      fx_holding_cost: num("fx_holding_cost", 0, 100, 0) / 100,
+      sellback_spread: num("sellback_spread", 0, 50, 1) / 100,
+      planned_margin: pm,
+      margin_floor: fl,
+      confidence: +segVal("confidence"),
+      pass_through: num("pass_through", 0, 100, 0) / 100,
+      pass_through_mode: segVal("pt_mode"),
+      demand_sd: num("demand_sd", 0, 30, 0) / 100,
+      budget_factor: num("budget_factor", 100, 1000, 110) / 100,
+      tie_tolerance: 0.0025,
+      drift: dsel === "custom" ? num("drift_custom", -90, 500, 30) / 100 : dsel,
+      usd_vol_scale: num("usd_vol_scale", 0.4, 1.6, 1)
+    };
+  }
+
+  const STRAT_FA = { now: "همه امروز", staged: "سه‌پله‌ای", payment_day: "همه روز پرداخت" };
+  function stratName(s) { if (STRAT_FA[s]) return STRAT_FA[s]; return plain(Number(s.slice(2))) + "٪ امروز"; }
+
+  // ---------- compute ----------
+  function compute() {
+    const inp = readInputs();
+    const out = E.runAll(P, inp, SCEN);
+    const sim = out._sim;
+    const curve = E.insuranceCurve(sim, inp, 0.01);
+    const thr = 1 - inp.confidence, N = sim.N;
+    let lo = null, hi = null;
+    for (const c of curve) {
+      const se = Math.sqrt(c.pBelow * (1 - c.pBelow) / N);
+      if (lo === null && c.pBelow - 2 * se <= thr + 1e-12) lo = c.h;
+      if (hi === null && c.pBelow + 2 * se <= thr + 1e-12) hi = c.h;
+    }
+    // the same curve if the coffee price were fixed today (the second lever), shown next to the floating one
+    let fixedHint = null, curveF = null, simF = null;
+    if (inp.contract === "floating") {
+      const s2 = simF = E.simulate(P, Object.assign({}, inp, { contract: "fixed" }));
+      curveF = E.insuranceCurve(s2, inp, 0.01);
+      for (let i = 0; i <= 100; i++) if (1 - s2.pBelowForH(i / 100) >= inp.confidence - 1e-12) { fixedHint = i / 100; break; }
+    }
+    const skey = $("stress").value;
+    const scen = SCEN.find(s => s.key === skey) || null;
+    const sf = scen ? out.stress_floor[skey] : undefined;
+    // the suggestion = the larger of two needs: the risk constraint and the stress floor.
+    // When the floating coffee price is what blocks the constraint, the suggestion also fixes the price (recFix).
+    let rec = null, recFix = false;
+    const withStress = need => scen === null ? need : (sf === null ? 1 : Math.max(need, sf));
+    if (out.min_hedge !== null) rec = withStress(out.min_hedge);
+    else if (fixedHint !== null) { rec = withStress(fixedHint); recFix = true; }
+    else if (scen !== null) rec = sf === null ? 1 : sf;
+    let recMetrics = null, recKey = null;
+    if (rec !== null) {
+      recKey = "h_" + Math.round(rec * 100);
+      const s = recFix ? simF : sim;
+      recMetrics = E.metrics(s, inp, s.cost(recKey));
+    }
+    return { inp, out, sim, curve, curveF, band: [lo, hi], fixedHint, scen, sf, rec, recFix, recKey, recMetrics };
+  }
+
+  // ---------- render: answer ----------
+  function renderAnswer(R) {
+    const { inp, out, scen, sf, rec } = R;
+    const a = $("answer");
+    const conf = pct(inp.confidence, inp.confidence === 0.975 ? 1 : 0), fl = pct(inp.margin_floor);
+    let html = "";
+    const floating = inp.contract === "floating";
+    const nm = scen ? SC_FA[scen.key][0] : "";
+    // one row per need; the row that sets the headline number is marked
+    const need = (label, v, win, extra) => `<div class="need${win ? " win" : ""}"><span class="k">${label}</span><span class="v">${v}</span>${extra ? `<span class="x">${extra}</span>` : ""}</div>`;
+    const sfVal = sf === null ? 1 : sf;
+    const sfTxt = sf === null ? "حتی ۱۰۰٪ کافی نیست" : (sf === 0 ? "خرید امروز لازم نیست" : pct(sf));
+    const stressRow = base => scen ? need(`تحمل تکرار «${nm}» از امروز (کف فشار)`, sfTxt, base === null || sfVal > base) : "";
+    const share = h => h >= 1 ? '<span class="hl">همهٔ</span> ارز' : `<span class="hl">${pct(h)}</span> ارز`;
+    const lead = scen ? " این عدد بزرگ‌ترِ دو نیاز زیر است:" : "";
+    if (out.min_hedge !== null) {
+      a.classList.remove("bad");
+      html += `<span class="pill good">${ICON_OK} قید ریسک برآورده می‌شود</span>`;
+      html += `<div class="big">${rec === 0 ? "لازم نیست امروز ارزی بخرید" : `${rec < 1 ? "دست‌کم " : ""}${share(rec)} را امروز بخرید`}</div>`;
+      const [lo, hi] = R.band;
+      const bandTxt = (lo !== null && hi !== null && (lo !== out.min_hedge || hi !== out.min_hedge)) ? `دقت شبیه‌سازی: ${pct(lo)} تا ${pct(hi)}` : "";
+      html += `<p class="sub">${rec === 0 ? "" : "بقیه را روز پرداخت."}${lead}</p>`;
+      html += `<div class="needs">${need(`قید ریسک: حاشیه با احتمال ${conf} بالای ${fl}`, pct(out.min_hedge), !scen || out.min_hedge >= sfVal, bandTxt)}${stressRow(out.min_hedge)}</div>`;
+      if (out.chosen) html += `<p class="help">از میان گزینه‌های آماده (همه امروز، سه‌پله‌ای، ده‌درصدی‌ها)، قاعدهٔ تصمیم «${stratName(out.chosen)}» را انتخاب می‌کند: ارزان‌ترینِ گزینه‌های مجاز، و در هزینهٔ تقریباً برابر کم‌ریسک‌تر.</p>`;
+    } else if (R.recFix) {
+      a.classList.remove("bad");
+      html += `<span class="pill warn">${ICON_WARN} با قیمت شناور قهوه، قید ریسک برآورده نمی‌شود</span>`;
+      html += `<div class="big">قیمت قهوه را امروز قطعی کنید و ${share(rec)} را امروز بخرید</div>`;
+      html += `<p class="sub">بقیه را روز پرداخت.${scen ? " سهم ارز بزرگ‌ترِ دو نیاز زیر است:" : ""}</p>`;
+      html += `<div class="needs">${need(`قید ریسک، با قیمت قطعی: حاشیه با احتمال ${conf} بالای ${fl}`, pct(R.fixedHint), !scen || R.fixedHint >= sfVal)}${stressRow(R.fixedHint)}</div>`;
+      html += `<p class="sub"><b>چرا قیمت قهوه هم؟</b> خرید ارز فقط ریسک دلار را برمی‌دارد. با قیمت شناور، حتی بهترین گزینه («${stratName(out.best_probability_strategy)}») حاشیه را فقط با احتمال ${pct(out.best_probability, 1)} بالای ${fl} نگه می‌دارد. اگر قیمت قطعی‌شدنی نیست، ${scen && sf !== null && sf > 0 ? `دست‌کم ${pct(sf)} ارز را امروز بخرید تا تکرار «${nm}» را تحمل کنید؛ ولی ` : ""}قید ${conf} رعایت نمی‌شود و بالاترین کفی که با این اطمینان شدنی است ${pct(out.highest_floor, 1)} است.</p>`;
+    } else {
+      a.classList.add("bad");
+      html += `<span class="pill crit">${ICON_KO} قید ریسک برآورده نمی‌شود</span>`;
+      html += `<div class="big">با این فرض‌ها هیچ سهمی از خرید ارز کافی نیست</div>`;
+      html += `<p class="sub">${floating ? "حتی با قیمت قطعی قهوه. " : ""}بهترین گزینه، «${stratName(out.best_probability_strategy)}»، حاشیه را فقط با احتمال ${pct(out.best_probability, 1)} بالای ${fl} نگه می‌دارد. بالاترین کفی که با اطمینان ${conf} شدنی است ${pct(out.highest_floor, 1)} است.${scen ? " برای دست‌کم تحمل یک بحران:" : ""}</p>`;
+      if (scen) html += `<div class="needs">${stressRow(null)}</div>`;
+    }
+    if (floating) html += `<div class="note">${ICON_WARN.replace("<svg", '<svg style="width:14px;height:14px;vertical-align:-2px;margin-inline-end:4px"')}تا وقتی قیمت قهوه شناور است، احتمال‌های مدل خوش‌بینانه‌اند: در بک‌تست ده‌ساله حتی خرید کامل ارز در روز تصمیم در ۸٫۵٪ هفته‌ها کف را شکست.</div>`;
+    const ptMean = inp.pass_through > 0 && inp.pass_through_mode === "up_only";
+    html += `<div class="facts">
+      <div class="fact"><span class="k">هزینهٔ برنامه</span><span class="v">${bil(out.plan_rial)}</span></div>
+      <div class="fact"><span class="k">درآمد برنامه</span><span class="v">${bil(out.planned_revenue_rial)}</span></div>
+      <div class="fact"><span class="k">کف می‌شکند اگر هزینه بیش از</span><span class="v">${pct((1 - inp.margin_floor) / (1 - inp.planned_margin))} <small>برنامه شود${inp.pass_through > 0 || inp.demand_sd > 0 ? "، با درآمد برنامه" : ""}</small></span></div>
+      <div class="fact"><span class="k">رشد مورد انتظار دلار تا پرداخت</span><span class="v">${spct(out.plan_growth - 1, 1)}</span></div>
+    </div>`;
+    if (ptMean) html += `<p class="help">با انتقال «فقط افزایش»، میانگین درآمد از درآمد برنامه بالاتر است.</p>`;
+    a.innerHTML = html;
+  }
+
+  // ---------- render: strategy table ----------
+  function renderTable(R) {
+    const { inp, out } = R;
+    const rows = [["now", "--s-now"], ["staged", "--s-staged"], ["payment_day", "--s-pay"]];
+    const conf = inp.confidence;
+    const tailTxt = `میانگین ${pct(1 - conf, conf === 0.975 ? 1 : 0)} بدترین`;
+    let h = `<thead><tr><th>راه خرید</th><th>میانگین هزینه</th><th>${tailTxt} (CVaR)</th><th>عبور از بودجه</th><th>حاشیه زیر کف</th><th>حاشیه در بدترین ${pct(1 - conf, conf === 0.975 ? 1 : 0)}</th></tr></thead><tbody>`;
+    const row = (label, color, m, cls) => {
+      const okp = m.p_margin_below_floor <= (1 - conf) + 1e-12;
+      return `<tr${cls ? ` class="${cls}"` : ""}><td><span class="sw" style="background:var(${color})"></span>${label}</td>
+        <td class="n">${pct(m.mean, 1)}</td><td class="n">${pct(m.cvar95, 0)}</td><td class="n">${pct(m.p_over_budget, 1)}</td>
+        <td class="n"><span class="mark ${okp ? "ok" : "ko"}">${okp ? ICON_OK : ICON_KO}${pct(m.p_margin_below_floor, 1)}</span></td>
+        <td class="n">${pct(m.margin_q05, 1)}</td></tr>`;
+    };
+    const staged = out.strategies.staged;
+    const T = inp.payment_week, sw = [0, 1, 2].map(k => plain(Math.round(k * T / 3))).join("، ");
+    h += row(STRAT_FA.now, "--s-now", out.strategies.now);
+    h += row(`سه‌پله‌ای <span class="sub-row">(هفته‌های ${sw})</span>`, "--s-staged", staged);
+    h += row(STRAT_FA.payment_day, "--s-pay", out.strategies.payment_day);
+    if (R.recMetrics && R.rec > 0 && (R.rec < 1 || R.recFix)) h += row(`${R.rec >= 1 ? "همه امروز" : pct(R.rec) + " امروز"}${R.recFix ? " + قیمت قطعی قهوه" : ""} <span class="sub-row">(پیشنهاد)</span>`, "--s-rec", R.recMetrics, "rec");
+    h += `</tbody>`;
+    $("strat_table").innerHTML = h;
+  }
+
+  // ---------- charts ----------
+  function cssVar(n) { return getComputedStyle(document.documentElement).getPropertyValue(n).trim(); }
+  // Persian text inside the (LTR) chart: side = which edge sits at x ("left" | "right" | "middle")
+  function T(x, y, str, o) {
+    o = o || {};
+    const anchor = o.side === "middle" ? "middle" : (o.side === "right" ? "start" : "end");
+    const halo = o.halo ? ` stroke="${o.halo}" stroke-width="4" stroke-linejoin="round" paint-order="stroke"` : "";
+    return `<text x="${x}" y="${y}" direction="rtl" unicode-bidi="embed" text-anchor="${anchor}" font-size="${o.size || 11}" fill="${o.fill}"${o.bold ? ' font-weight="700"' : ""}${halo}>${str}</text>`;
+  }
+  // Places chart labels so they do not sit on each other or on the curves (obstacles are reserved boxes).
+  function makePlacer(bounds, halo) {
+    const boxes = [];
+    const est = (s, size) => s.length * size * 0.56;
+    const hit = b => boxes.some(q => b.x0 < q.x1 && b.x1 > q.x0 && b.y0 < q.y1 && b.y1 > q.y0);
+    return {
+      reserve(b) { boxes.push(b); },
+      // cands: [{x, y, side}] tried in order; lines: [{s, fill, size, bold}]; y is the first baseline
+      block(cands, lines, force) {
+        const lh = 15, w = Math.max(...lines.map(l => est(l.s, l.size || 11)));
+        const boxOf = c => {
+          const x0 = c.side === "middle" ? c.x - w / 2 : (c.side === "right" ? c.x - w : c.x);
+          return { x0: x0 - 3, x1: x0 + w + 3, y0: c.y - 12, y1: c.y + 4 + (lines.length - 1) * lh };
+        };
+        let pick = cands.find(c => { const b = boxOf(c); return b.x0 >= bounds.x0 && b.x1 <= bounds.x1 && b.y0 >= bounds.y0 && b.y1 <= bounds.y1 && !hit(b); });
+        if (!pick && force) pick = cands[0];
+        if (!pick) return "";
+        boxes.push(boxOf(pick));
+        return lines.map((l, i) => T(pick.x, pick.y + i * lh, l.s, Object.assign({ side: pick.side, halo }, l))).join("");
+      }
+    };
+  }
+  const lineSample = (color, dash, w) => `<svg width="26" height="10" aria-hidden="true"><line x1="1" x2="25" y1="5" y2="5" stroke="${color}" stroke-width="${w}"${dash ? ` stroke-dasharray="${dash}"` : ""}/></svg>`;
+  const fmtP = (v, d) => plain(v, d === undefined ? (v % 1 ? 1 : 0) : d) + "٪";
+  function niceTicks(lo, hi, n) {
+    const span = hi - lo, step0 = span / n, mag = Math.pow(10, Math.floor(Math.log10(step0)));
+    const step = [1, 2, 2.5, 5, 10].map(m => m * mag).find(s => span / s <= n) || 10 * mag;
+    const t = []; for (let v = Math.ceil(lo / step) * step; v <= hi + 1e-9; v += step) t.push(+v.toFixed(10));
+    return t;
+  }
+
+  const chartW = el => Math.round(Math.max(300, Math.min(680, el.clientWidth - 24)));
+  function renderInsurance(R) {
+    const { inp, curve, curveF, out } = R;
+    const W = chartW($("ins_chart")), narrow = W < 520, Hh = 336, ml = 46, mr = 14, mt = 36, ph = 238;
+    const x = h => ml + h * (W - ml - mr);
+    const thr = Math.round((1 - inp.confidence) * 1000) / 10;
+    const pv = c => c.pBelow * 100;
+    const peak = Math.max(thr * 2, ...curve.map(pv), ...(curveF ? curveF.map(pv) : [0]));
+    const pmax = Math.max(10, Math.ceil(peak / 5) * 5);
+    const y = v => mt + ph - v / pmax * ph;
+    const col = {
+      grid: cssVar("--line"), axis: cssVar("--line-strong"), muted: cssVar("--muted"), ink2: cssVar("--ink-2"),
+      main: cssVar("--s-now"), alt: cssVar("--muted"), good: cssVar("--good"), goodSoft: cssVar("--good-soft"),
+      rec: cssVar("--s-rec"), surface: cssVar("--surface")
+    };
+    const at = (cv, h) => cv[Math.round(h * 100)];
+    const path = cv => cv.map((c, i) => (i ? "L" : "M") + x(c.h).toFixed(1) + "," + y(pv(c)).toFixed(1)).join("");
+    const floating = inp.contract === "floating";
+
+    let s = `<svg viewBox="0 0 ${W} ${Hh}" role="img" aria-label="ریسک افتادن حاشیه زیر کف، برای هر سهم خرید امروز">`;
+    // allowed zone and grid
+    s += `<rect x="${ml}" y="${y(thr).toFixed(1)}" width="${W - ml - mr}" height="${(y(0) - y(thr)).toFixed(1)}" fill="${col.goodSoft}"/>`;
+    for (const t of niceTicks(0, pmax, 5)) {
+      if (t > 0) s += `<line x1="${ml}" x2="${W - mr}" y1="${y(t)}" y2="${y(t)}" stroke="${col.grid}" stroke-width="1"/>`;
+      s += `<text x="${ml - 8}" y="${y(t) + 4}" text-anchor="end" font-size="11" fill="${col.muted}">${fmtP(t)}</text>`;
+    }
+    s += `<line x1="${ml}" x2="${W - mr}" y1="${y(thr)}" y2="${y(thr)}" stroke="${col.good}" stroke-width="1.5"/>`;
+    s += T(8, 15, `ریسک: احتمال اینکه حاشیهٔ سود زیر ${fmtP(inp.margin_floor * 100)} برود`, { side: "left", size: 11.5, fill: col.ink2, bold: true });
+    // curves
+    if (curveF) s += `<path d="${path(curveF)}" fill="none" stroke="${col.alt}" stroke-width="2" stroke-dasharray="6 4"/>`;
+    s += `<path d="${path(curve)}" fill="none" stroke="${col.main}" stroke-width="2.8" stroke-linejoin="round" stroke-linecap="round"/>`;
+
+    // labels: placed after the curves are reserved as obstacles
+    const PL = makePlacer({ x0: ml + 2, x1: W - mr - 2, y0: 22, y1: y(0) - 2 }, col.surface);
+    for (const cv of [curve, curveF]) if (cv) for (const c of cv) PL.reserve({ x0: x(c.h) - 2, x1: x(c.h) + 2, y0: y(pv(c)) - 3, y1: y(pv(c)) + 3 });
+    let marks = "", labels = "";
+    const dot = (cx, cy, r, fill) => { PL.reserve({ x0: cx - r - 3, x1: cx + r + 3, y0: cy - r - 3, y1: cy + r + 3 }); marks += `<circle cx="${cx.toFixed(1)}" cy="${cy.toFixed(1)}" r="${r}" fill="${fill}" stroke="${col.surface}" stroke-width="2"/>`; };
+    const around = (cx, cy, n) => {   // candidate spots around a point, for an n-line label
+      const up = cy - 17 - (n - 1) * 15, dn = cy + 25;
+      return [{ x: cx, y: up, side: "middle" }, { x: cx + 14, y: up + 5, side: "left" }, { x: cx - 14, y: up + 5, side: "right" },
+              { x: cx, y: dn, side: "middle" }, { x: cx + 14, y: dn - 5, side: "left" }, { x: cx - 14, y: dn - 5, side: "right" }];
+    };
+
+    let zoneExtra = null;   // a crossing label with no room near its dot moves under the zone label
+    // 1. the recommended share (purple)
+    const mh = out.min_hedge;
+    if (R.rec !== null) {
+      const c = at(R.recFix ? curveF : curve, R.rec), xr = x(R.rec), yr = y(pv(c));
+      dot(xr, yr, 6, col.rec);
+      const l1 = R.rec === 0 ? "پیشنهاد: امروز خرید لازم نیست" : `پیشنهاد: ${fmtP(R.rec * 100, 0)} امروز${R.recFix ? " + قیمت قطعی" : ""}`;
+      const l2 = `ریسک ${fmtP(pv(c), 1)}` + (pv(c) <= thr + 1e-9 ? "، داخل ناحیهٔ مجاز" : "");
+      labels += PL.block(around(xr, yr, 2), [{ s: l1, fill: col.rec, bold: true, size: 12 }, { s: l2, fill: col.rec }], true);
+    }
+    // 2. where the curve enters the allowed zone, if that is not already the recommendation
+    if (mh !== null && (R.rec === null || Math.abs(mh - R.rec) > 1e-9)) {
+      const c = at(curve, mh), xm = x(mh), ym = y(pv(c));
+      dot(xm, ym, 4.5, col.good);
+      const lab = PL.block(around(xm, ym, 1).slice(3).concat(around(xm, ym, 1).slice(0, 3)), [{ s: `ورود به ناحیهٔ مجاز: ${fmtP(mh * 100, 0)} امروز`, fill: col.good, bold: true }]);
+      if (lab) labels += lab; else zoneExtra = { s: `منحنی آبی از ${fmtP(mh * 100, 0)} خرید امروز واردش می‌شود`, fill: col.good };
+    }
+    // 3. the fixed-price curve: from which share it is allowed
+    if (curveF && mh === null) {
+      const hF = R.fixedHint;
+      if (hF !== null && !(R.recFix && Math.abs(R.rec - hF) < 1e-9)) {
+        const c = at(curveF, hF), xf = x(hF), yf = y(pv(c));
+        dot(xf, yf, 4.5, col.alt);
+        const lab = PL.block(around(xf, yf, 2).slice(3).concat(around(xf, yf, 2).slice(0, 3)),
+          [{ s: "اگر قیمت قهوه قطعی شود:", fill: col.ink2 }, { s: `از ${fmtP(hF * 100, 0)} خرید امروز مجاز`, fill: col.ink2, bold: true }]);
+        if (lab) labels += lab; else zoneExtra = { s: `خط‌چین از ${fmtP(hF * 100, 0)} خرید امروز واردش می‌شود`, fill: col.ink2 };
+      }
+    }
+    // 4. the allowed line
+    const zoneTxt = [{ s: `حد مجاز: ریسک تا ${fmtP(thr)}`, fill: col.good, bold: true }].concat(zoneExtra ? [zoneExtra] : []);
+    const zoneCands = n => [{ x: ml + 8, y: y(thr) + 15, side: "left" }, { x: ml + 8, y: y(0) - 8 - (n - 1) * 15, side: "left" },
+      { x: W - mr - 8, y: y(thr) + 15, side: "right" }, { x: W - mr - 8, y: y(0) - 8 - (n - 1) * 15, side: "right" },
+      { x: ml + 8, y: y(thr) - 6 - (n - 1) * 15, side: "left" }, { x: W - mr - 8, y: y(thr) - 6 - (n - 1) * 15, side: "right" }];
+    let zl = PL.block(zoneCands(zoneTxt.length), zoneTxt);
+    // last resort: the zone name alone (the crossing share is also in the answer card and the caption)
+    if (!zl) zl = PL.block(zoneCands(1), zoneTxt.slice(0, 1), true);
+    labels += zl;
+    // 5. the two ends of the main curve
+    const c0 = curve[0], c1 = curve[curve.length - 1];
+    dot(x(0), y(pv(c0)), 3.5, col.main); dot(x(1), y(pv(c1)), 3.5, col.main);
+    labels += PL.block([{ x: x(0) + 13, y: y(pv(c0)) - 10, side: "left" }, { x: x(0) + 13, y: y(pv(c0)) - 22, side: "left" }, { x: x(0) + 13, y: y(pv(c0)) + 22, side: "left" }],
+      [{ s: `همه روز پرداخت: ریسک ${fmtP(pv(c0), 1)}`, fill: col.main, bold: true }]);
+    const endTxt = `همه امروز: ریسک ${fmtP(pv(c1), 1)}`;
+    labels += PL.block([{ x: x(1) - 13, y: y(pv(c1)) - 11, side: "right" }, { x: x(1) - 13, y: y(pv(c1)) + 21, side: "right" }, { x: x(1) - 13, y: y(pv(c1)) - 30, side: "right" }],
+      [{ s: endTxt, fill: col.main, bold: true }]);
+    s += marks + labels;
+
+    // x axis
+    s += `<line x1="${ml}" x2="${W - mr}" y1="${y(0)}" y2="${y(0)}" stroke="${col.axis}"/>`;
+    for (let t = 0; t <= 100; t += narrow ? 25 : 20) s += `<text x="${x(t / 100)}" y="${y(0) + 17}" text-anchor="middle" font-size="11" fill="${col.muted}">${fmtP(t)}</text>`;
+    s += T((ml + W - mr) / 2, Hh - 6, narrow ? "سهم خرید امروز (بقیه روز پرداخت)" : "سهم دلاری که همین امروز خریده می‌شود (بقیه در روز پرداخت)", { side: "middle", size: 11.5, fill: col.ink2 });
+    s += `<line id="ins_x" x1="0" x2="0" y1="${mt}" y2="${y(0)}" stroke="${col.muted}" stroke-width="1" opacity="0"/>`;
+    s += `<rect id="ins_hit" x="${ml}" y="${mt - 10}" width="${W - ml - mr}" height="${y(0) - mt + 10}" fill="transparent"/>`;
+    s += `</svg>`;
+
+    const legend = `<div class="legend">
+      <span>${lineSample(col.main, "", 2.8)}${floating ? "قرارداد فعلی: قیمت قهوه تا روز پرداخت شناور" : "قرارداد فعلی: قیمت قهوه قطعی"}</span>
+      ${curveF ? `<span>${lineSample(col.alt, "6 4", 2)}اگر قیمت قهوه همین امروز قطعی شود</span>` : ""}
+      <span><span class="sw" style="background:var(--good-soft);box-shadow:inset 0 0 0 1px var(--good)"></span>ناحیهٔ مجاز</span>
+      ${R.rec !== null ? `<span><span class="sw" style="background:var(--s-rec);border-radius:50%"></span>سهم پیشنهادی</span>` : ""}
+    </div>`;
+    const el = $("ins_chart"); el.innerHTML = legend + s + `<div class="tip" id="ins_tip"></div>`;
+    const svg = el.querySelector(":scope > svg"), tip = $("ins_tip"), hit = $("ins_hit"), xl = $("ins_x");
+    function move(ev) {
+      const r = svg.getBoundingClientRect(), sx = (ev.clientX - r.left) / r.width * W;
+      let h = Math.round((sx - ml) / (W - ml - mr) * 100) / 100; h = Math.max(0, Math.min(1, h));
+      const c = at(curve, h), cf = curveF ? at(curveF, h) : null;
+      xl.setAttribute("x1", x(c.h)); xl.setAttribute("x2", x(c.h)); xl.setAttribute("opacity", "1");
+      tip.innerHTML = `<b>${fmtP(c.h * 100, 0)} امروز، بقیه روز پرداخت</b><br>ریسک: ${fmtP(pv(c), 1)}${cf ? `<br>اگر قیمت قهوه قطعی شود: ${fmtP(pv(cf), 1)}` : ""}<br>میانگین هزینه: ${fmtP(c.mean * 100, 2)} برنامه`;
+      tip.style.left = (svg.offsetLeft + x(c.h) / W * r.width) + "px";
+      tip.style.top = (svg.offsetTop + y(pv(c)) / Hh * r.height - 6) + "px";
+      tip.classList.add("on");
+    }
+    hit.addEventListener("pointermove", move); hit.addEventListener("pointerdown", move);
+    hit.addEventListener("pointerleave", () => { tip.classList.remove("on"); xl.setAttribute("opacity", "0"); });
+
+    // what the insurance buys and what it costs
+    const recUsed = R.rec !== null && R.rec > 0;
+    const hRef = recUsed ? R.rec : 1, cR = at(recUsed && R.recFix ? curveF : curve, hRef);
+    const dm = cR.mean - c0.mean, dRial = dm * out.plan_rial;
+    const mil = Math.abs(dRial) < 1e6 ? "کمتر از ۱ میلیون ریال" : `${dRial > 0 ? "" : "−"}<span class="num">${nf(0).format(Math.round(Math.abs(dRial) / 1e6))}</span> میلیون ریال`;
+    const neutral = inp.drift === "neutral" && Math.abs(inp.funds_rate - inp.market_rate) < 1e-12 && inp.fx_holding_cost === 0;
+    $("ins_facts").innerHTML = `<div class="facts">
+        <div class="fact"><span class="k">ریسک اگر امروز هیچ دلاری نخرید</span><span class="v">${pct(pv(c0) / 100, 1)}</span></div>
+        <div class="fact"><span class="k">ریسک ${recUsed ? `با پیشنهاد (${fmtP(hRef * 100, 0)} امروز${R.recFix ? " + قیمت قطعی" : ""})` : "اگر همه امروز خریده شود"}</span><span class="v">${pct(pv(cR) / 100, 1)}</span></div>
+        <div class="fact"><span class="k">هزینهٔ این بیمه (تغییر میانگین هزینه)</span><span class="v">${Math.abs(dm) < 0.0005 ? "تقریباً صفر" : spct(dm, 1)} <small>(${mil})</small></span></div>
+      </div>
+      ${floating && mh === null ? `<p class="cap"><b>چرا منحنی آبی به ناحیهٔ سبز نمی‌رسد؟</b> چون قیمت قهوه هنوز شناور است و خرید دلار فقط ریسک دلار را می‌پوشاند. خط‌چین نشان می‌دهد اگر قیمت قهوه همین امروز با فروشنده قطعی شود، ریسک قهوه هم حذف می‌شود${R.fixedHint !== null ? ` و از ${fmtP(R.fixedHint * 100, 0)} خرید امروز به بعد قید رعایت می‌شود` : ""}.</p>` : ""}
+      <p class="cap">${neutral
+        ? "هزینهٔ بیمه نزدیک صفر است چون انتظار از دلار «خنثی» است: خرید زود به‌طور میانگین نه سود می‌دهد نه زیان و فقط بدترین حالت‌ها را کم می‌کند. اگر برای خرید زود وام بگیرید یا از دلار انتظار دیگری داشته باشید، این عدد تغییر می‌کند."
+        : "هزینهٔ بیمه یعنی تغییر میانگین هزینهٔ ریالی نسبت به خرید همه در روز پرداخت، با فرض‌های فعلی. منفی یعنی خرید زود به‌طور میانگین ارزان‌تر هم هست."}</p>`;
+  }
+
+  function renderDist(R) {
+    const { sim, inp, out } = R;
+    const series = ["now", "staged", "payment_day"];
+    const lo = 40, hi = 240, bw = 4, nb = (hi - lo) / bw;
+    const W = chartW($("dist_chart")), narrow = W < 520, ml = 22, mr = 22, top = 28, rowH = 98, Hh = top + rowH * 3 + 40;
+    const x = v => ml + (Math.min(Math.max(v, lo), hi) - lo) / (hi - lo) * (W - ml - mr);
+    const col = { muted: cssVar("--muted"), ink: cssVar("--ink"), ink2: cssVar("--ink-2"), base: cssVar("--line-strong"), bar: cssVar("--bar"), crit: cssVar("--crit"), surface: cssVar("--surface") };
+    // per bin: share of futures with the margin above / below the floor (exact, also with pass-through and sales noise)
+    const hists = series.map(k => {
+      const c = sim.cost(k), mg = out.strategies[k]._margin, N = c.length;
+      const ok = new Array(nb).fill(0), bad = new Array(nb).fill(0);
+      for (let p = 0; p < N; p++) {
+        let b = Math.floor((c[p] / sim.Cplan * 100 - lo) / bw); b = Math.max(0, Math.min(nb - 1, b));
+        if (mg[p] < inp.margin_floor) bad[b]++; else ok[b]++;
+      }
+      return { ok: ok.map(n => n / N * 100), bad: bad.map(n => n / N * 100) };
+    });
+    const ymax = Math.max(...hists.map(hh => Math.max(...hh.ok.map((v, b) => v + hh.bad[b]))));
+    const floorCost = (1 - inp.margin_floor) / (1 - inp.planned_margin) * 100;
+    const revNoise = inp.pass_through > 0 || inp.demand_sd > 0;
+    let s = `<svg viewBox="0 0 ${W} ${Hh}" role="img" aria-label="توزیع هزینهٔ ریالی سه راه خرید">`;
+    const yTop = top - 4, yBot = top + rowH * 3 - 16;
+    // reference lines, drawn once through all three panels and named at the top
+    s += `<line x1="${x(100)}" x2="${x(100)}" y1="${yTop}" y2="${yBot}" stroke="${col.ink}" stroke-width="1.3"/>`;
+    s += `<line x1="${x(floorCost)}" x2="${x(floorCost)}" y1="${yTop}" y2="${yBot}" stroke="${col.crit}" stroke-width="1.6" stroke-dasharray="5 4"/>`;
+    s += T(x(100) - 5, top - 10, narrow ? "برنامه" : "هزینهٔ برنامه: ۱۰۰٪", { side: "right", fill: col.ink, bold: true });
+    const fTxt = `${narrow ? "کف" : "مرز کف حاشیه"}: ${fmtP(floorCost, 0)}${!narrow && revNoise ? "، با درآمد برنامه" : ""}`;
+    const fRoom = W - mr - x(floorCost) > fTxt.length * 11 * 0.56 + 8;
+    s += T(x(floorCost) + (fRoom ? 5 : -5), top - 10, fTxt, { side: fRoom ? "left" : "right", fill: col.crit, bold: true });
+    series.forEach((k, i) => {
+      const y0 = top + i * rowH, base0 = y0 + rowH - 16, ph = rowH - 26;
+      const hh = hists[i], m = out.strategies[k];
+      hh.ok.forEach((v, b) => {
+        const tot = v + hh.bad[b]; if (tot <= 0) return;
+        const bx = x(lo + b * bw) + 1, bwid = Math.max(1, x(lo + (b + 1) * bw) - x(lo + b * bw) - 2);
+        const hOk = v / ymax * ph, hBad = hh.bad[b] / ymax * ph;
+        if (hOk > 0) s += `<rect x="${bx.toFixed(1)}" y="${(base0 - hOk).toFixed(1)}" width="${bwid.toFixed(1)}" height="${hOk.toFixed(1)}" fill="${col.bar}"/>`;
+        if (hBad > 0) s += `<rect x="${bx.toFixed(1)}" y="${(base0 - hOk - hBad).toFixed(1)}" width="${bwid.toFixed(1)}" height="${hBad.toFixed(1)}" fill="${col.crit}"/>`;
+        s += `<rect class="hb" data-i="${i}" data-b="${b}" x="${bx.toFixed(1)}" y="${(base0 - ph).toFixed(1)}" width="${bwid.toFixed(1)}" height="${ph.toFixed(1)}" fill="transparent"/>`;
+      });
+      s += `<line x1="${ml}" x2="${W - mr}" y1="${base0}" y2="${base0}" stroke="${col.base}"/>`;
+      s += T(W - mr, y0 + 14, STRAT_FA[k], { side: "right", size: 12.5, fill: col.ink, bold: true, halo: col.surface });
+      s += T(W - mr, y0 + 31, `حاشیه زیر کف در ${fmtP(m.p_margin_below_floor * 100, 1)} آینده‌ها`, { side: "right", fill: col.crit, bold: true, halo: col.surface });
+    });
+    for (let t = lo; t <= hi; t += narrow ? 40 : 20) s += `<text x="${x(t)}" y="${yBot + 16}" text-anchor="middle" font-size="11" fill="${col.muted}">${plain(t)}٪</text>`;
+    s += T((ml + W - mr) / 2, Hh - 6, "هزینهٔ ریالی در روز پرداخت، درصدی از هزینهٔ برنامه", { side: "middle", size: 11.5, fill: col.ink2 });
+    s += `</svg>`;
+    const legend = `<div class="legend">
+      <span><span class="sw" style="background:var(--bar)"></span>حاشیه بالای کف می‌ماند</span>
+      <span><span class="sw" style="background:var(--crit)"></span>حاشیه زیر کف می‌رود</span>
+      <span>${lineSample(col.ink, "", 1.4)}هزینهٔ برنامه</span>
+      <span>${lineSample(col.crit, "5 4", 1.6)}هزینه‌ای که حاشیه را دقیقاً به کف می‌رساند</span>
+    </div>`;
+    const el = $("dist_chart"); el.innerHTML = legend + s + `<div class="tip" id="dist_tip"></div>`;
+    const svg = el.querySelector(":scope > svg"), tip = $("dist_tip");
+    svg.querySelectorAll(".hb").forEach(r => {
+      const show = () => {
+        const i = +r.dataset.i, b = +r.dataset.b, rr = svg.getBoundingClientRect(), hh = hists[i];
+        const tot = hh.ok[b] + hh.bad[b];
+        const range = b === nb - 1 ? `${plain(lo + b * bw)}٪ برنامه و بیشتر` : `${plain(lo + b * bw)} تا ${plain(lo + (b + 1) * bw)}٪ برنامه`;
+        tip.innerHTML = `<b>${STRAT_FA[series[i]]}</b><br>هزینهٔ ${range}<br>${fmtP(tot, 1)} آینده‌ها${hh.bad[b] > 0 ? `، که ${hh.bad[b] >= tot - 1e-12 ? "همه" : fmtP(hh.bad[b], 1)} زیر کف` : ""}`;
+        tip.style.left = (svg.offsetLeft + (+r.getAttribute("x")) / W * rr.width) + "px";
+        tip.style.top = (svg.offsetTop + (+r.getAttribute("y")) / Hh * rr.height + 20) + "px";
+        tip.classList.add("on");
+      };
+      r.addEventListener("pointerenter", show); r.addEventListener("pointerdown", show);
+      r.addEventListener("pointerleave", () => tip.classList.remove("on"));
+    });
+  }
+
+  // ---------- stress ----------
+  function renderStress(R) {
+    const { inp, out } = R;
+    const w = inp.arabica_share;
+    const recH = R.rec !== null && R.rec > 0 && (R.rec < 1 || R.recFix) ? R.rec : null;
+    const recLab = recH === null ? "" : `${recH >= 1 ? "همه امروز" : pct(recH) + " امروز"}${R.recFix ? " + قیمت قطعی" : ""} (پیشنهاد)`;
+    const inpFix = Object.assign({}, inp, { contract: "fixed" });
+    let h = `<thead><tr><th>سناریو</th><th>دلار</th><th>قهوه (دلاری)</th><th>حاشیه: همه امروز</th><th>سه‌پله‌ای</th><th>روز پرداخت</th>${recH !== null ? `<th>${recLab}</th>` : ""}</tr></thead><tbody>`;
+    const cell = r => `<td class="n"><span class="mark ${r.breaks ? "ko" : "ok"}">${r.breaks ? ICON_KO : ICON_OK}${pct(r.margin, 0)}</span></td>`;
+    for (const sc of SCEN) {
+      const r = out.scenarios[sc.key];
+      const coffee = w * (1 + sc.arabica[2]) + (1 - w) * (1 + sc.robusta[2]) - 1;
+      h += `<tr><td><b>${SC_FA[sc.key][0]}</b><div class="sub-row">${SC_FA[sc.key][1]}</div></td>
+        <td class="n">${spct(sc.usd[2], 0)}</td><td class="n">${spct(coffee, 0)}</td>
+        ${cell(r.now)}${cell(r.staged)}${cell(r.payment_day)}${recH !== null ? cell((R.recFix ? E.replay(inpFix, PATHS, sc) : r)._hedge(recH)) : ""}</tr>`;
+    }
+    h += `</tbody>`;
+    $("stress_table").innerHTML = h;
+  }
+
+  function renderReverse(R) {
+    const { inp, out } = R;
+    const g = out.plan_growth;
+    const fmtX = xs => xs === null ? "هیچ‌وقت" : spct(xs - 1, 0);
+    const sTxt = h => {
+      const xs = E.reverseStress(inp, PATHS, h);
+      if (xs === null) return `با خرید ${pct(h)} امروز، هیچ جهشی از دلار به‌تنهایی کف را نمی‌شکند.`;
+      if (xs <= g + 1e-12 && xs !== null && h < 1) return `با خرید ${pct(h)} امروز، کف حتی اگر دلار طبق انتظار بالا برود می‌شکند.`;
+      return `با خرید ${pct(h)} امروز، کف فقط وقتی می‌شکند که دلار تا روز پرداخت بیش از ${fmtX(xs)} بالا برود، یعنی به ${rial(xs * inp.s0 * (1 - inp.channel_discount))} برسد.`;
+    };
+    const hMain = R.rec !== null ? R.rec : (out.min_hedge !== null ? out.min_hedge : 0);
+    $("rs_sentence").innerHTML = sTxt(hMain);
+    const hs = [0, 0.25, 0.5, 0.75, 1];
+    if (hMain > 0 && hMain < 1 && !hs.some(v => Math.abs(v - hMain) < 1e-9)) hs.push(hMain);
+    hs.sort((a, b) => a - b);
+    let t = `<thead><tr><th>سهم خرید امروز</th><th>جهش دلاری که کف را می‌شکند (نسبت به امروز)</th><th>نرخ دلار شکننده</th></tr></thead><tbody>`;
+    for (const h of hs) {
+      const xs = E.reverseStress(inp, PATHS, h);
+      t += `<tr${Math.abs(h - hMain) < 1e-9 ? ' class="rec"' : ""}><td class="n">${pct(h)}</td><td class="n">${xs === null ? "هیچ‌وقت" : (xs <= g + 1e-12 && h < 1 ? "در همان سطح مورد انتظار" : spct(xs - 1, 0))}</td><td class="n">${xs === null ? "—" : rial(xs * inp.s0 * (1 - inp.channel_discount))}</td></tr>`;
+    }
+    t += `</tbody>`;
+    $("rs_table").innerHTML = t;
+  }
+
+  // ---------- loop ----------
+  let timer = null;
+  function update() {
+    syncDerived();
+    clearTimeout(timer);
+    timer = setTimeout(() => {
+      const R = compute(); lastR = R;
+      renderAnswer(R); renderTable(R); renderInsurance(R); renderDist(R); renderStress(R); renderReverse(R);
+    }, 60);
+  }
+  let lastR = null, rsTimer = null, lastWidth = window.innerWidth;
+  window.addEventListener("resize", () => {
+    clearTimeout(rsTimer);
+    rsTimer = setTimeout(() => { if (lastR && window.innerWidth !== lastWidth) { lastWidth = window.innerWidth; renderInsurance(lastR); renderDist(lastR); } }, 150);
+  });
+  document.querySelectorAll("aside input, aside select").forEach(el => el.addEventListener("input", update));
+  Object.keys(segs).forEach(id => $(id).addEventListener("click", e => { const b = e.target.closest("button"); if (!b) return; setSeg(id, b.dataset.v); update(); }));
+  $("reset").addEventListener("click", () => { applyDefaults(); update(); });
+  if (window.matchMedia) window.matchMedia("(prefers-color-scheme: dark)").addEventListener?.("change", update);
+  new MutationObserver(update).observe(document.documentElement, { attributes: true, attributeFilter: ["data-theme"] });
+
+  $("s0_help").innerHTML = `پیش‌فرض: فروش Bonbast در ۱۵ مهر ۱۴۰۵، ${rial(PATHS.s0)}`;
+  document.querySelectorAll("[data-npaths]").forEach(e => { e.textContent = plain(PATHS.n_paths); });
+  applyDefaults();
+  const R0 = compute(); lastR = R0;
+  renderAnswer(R0); renderTable(R0); renderInsurance(R0); renderDist(R0); renderStress(R0); renderReverse(R0);
+})();
+</script>
